@@ -52,10 +52,11 @@ kubectl create -f versions/prime-v1.99.0.yaml
 Trigger a version sync by restarting Harvester. The sync runs once the new pods start, so wait for the upgrade check to reach the mock, then check the request and the Versions:
 
 ```sh
+START=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 kubectl -n harvester-system rollout restart deploy/harvester
 kubectl -n harvester-system rollout status deploy/harvester
-until kubectl -n upgrade-mock logs deploy/upgrade-mock --since=2m | grep -q 'upgrade check'; do sleep 5; done
-kubectl -n upgrade-mock logs deploy/upgrade-mock --since=2m | grep 'upgrade check'
+until kubectl -n upgrade-mock logs deploy/upgrade-mock --since-time=$START | grep -q 'upgrade check'; do sleep 5; done
+kubectl -n upgrade-mock logs deploy/upgrade-mock --since-time=$START | grep 'upgrade check'
 kubectl -n harvester-system get versions.harvesterhci.io --show-labels
 ```
 

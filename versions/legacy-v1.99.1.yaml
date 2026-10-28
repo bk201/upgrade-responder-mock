@@ -1,0 +1,13 @@
+# Community v1.99.1 as a syncer from before the versionSource label created
+# it: no labels, and the release date from the upgrade check. The current
+# syncer adopts it by labeling it versionSource=upgrade-checker. With another
+# releaseDate, it's treated as user-created and stays unlabeled.
+apiVersion: harvesterhci.io/v1beta1
+kind: Version
+metadata:
+  name: v1.99.1
+  namespace: harvester-system
+spec:
+  isoChecksum: "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  isoURL: http://iso.invalid/harvester.iso
+  releaseDate: "2026-10-02"

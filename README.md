@@ -14,6 +14,7 @@ Versions to upgrade with are imported from `versions/`, as a user would import a
 - `versions/`: Versions to import.
   - `prime-v1.99.0.yaml`: Prime v1.99.0, to switch a Community cluster. Set `isoURL` to the Prime ISO.
   - `community-v1.99.0.yaml`: Community v1.99.0, which a Prime cluster must not upgrade to. The upgrade webhook rejects it before the ISO is downloaded, so its `isoURL` doesn't matter.
+  - `legacy-v1.99.1.yaml`: Community v1.99.1 as a syncer from before the `versionSource` label created it, with no labels and the release date from `releases.json`. A sync should adopt it by labeling it `versionSource=upgrade-checker`; with another `releaseDate`, it stays unlabeled as a user-created Version. Delete any synced `v1.99.1` before creating it.
 - `upgrade-mock.yaml`: namespace, the Deployment, and a NodePort Service on port 30880. The Deployment runs `server.py` and `releases.json` from the `upgrade-mock` ConfigMap, created from those two files.
 
 The default `releases.json` offers Prime `v1.99.0` (tagged `prime`) and Community `v1.99.1` (tagged `community`).

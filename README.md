@@ -10,6 +10,7 @@ Versions to upgrade with are imported from `versions/`, as a user would import a
 ## Files
 
 - `server.py`: the server (Python standard library only).
+- `sync-versions.sh`: triggers a version sync and waits for it.
 - `releases.json`: the releases. Each entry has the responder fields (`name`, `releaseDate`, `minUpgradableVersion`, `tags`) and `flavor`, the `harvesterhci.io/serverFlavor` label; omit it for an unlabeled Version.
 - `versions/`: Versions to import.
   - `prime-v1.99.0.yaml`: Prime v1.99.0, to switch a Community cluster. Set `isoURL` to the Prime ISO.
@@ -49,15 +50,10 @@ Import a Version:
 kubectl create -f versions/prime-v1.99.0.yaml
 ```
 
-Trigger a version sync by restarting Harvester. The sync runs once the new pods start, so wait for the upgrade check to reach the mock, then check the request and the Versions:
+Trigger a version sync with `./sync-versions.sh`. It restarts Harvester, waits for the upgrade check from the new pods to reach the mock (up to `TIMEOUT` seconds, default 300), then prints the request, including the reported `serverFlavor`, and the Versions. Each command is printed before it runs.
 
 ```sh
-START=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-kubectl -n harvester-system rollout restart deploy/harvester
-kubectl -n harvester-system rollout status deploy/harvester
-until kubectl -n upgrade-mock logs deploy/upgrade-mock --since-time=$START | grep -q 'upgrade check'; do sleep 5; done
-kubectl -n upgrade-mock logs deploy/upgrade-mock --since-time=$START | grep 'upgrade check'
-kubectl -n harvester-system get versions.harvesterhci.io --show-labels
+./sync-versions.sh
 ```
 
 To change the releases, edit `releases.json` and update the ConfigMap. The server reads `releases.json` on every request, so the change applies once kubelet syncs the mounted file, usually within a minute. After changing `server.py`, also restart the Deployment.

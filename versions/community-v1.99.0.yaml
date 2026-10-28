@@ -1,0 +1,13 @@
+# Community v1.99.0, for a Prime cluster to try to upgrade to. The upgrade
+# webhook rejects it by its flavor label before the ISO is downloaded, so the
+# ISO URL is never used.
+apiVersion: harvesterhci.io/v1beta1
+kind: Version
+metadata:
+  name: v1.99.0-community
+  namespace: harvester-system
+  labels:
+    harvesterhci.io/serverFlavor: community
+spec:
+  isoURL: http://<ISO host>/community/harvester-v1.99.0-amd64.iso
+  releaseDate: "2026-10-01"

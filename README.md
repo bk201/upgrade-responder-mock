@@ -1,33 +1,26 @@
 # Upgrade mock
 
-A mock upgrade-responder and `version.yaml` download site that runs inside the test cluster, for testing upgrade paths between Community and Prime releases without published releases. The ISOs stay wherever you host them; the mock only points to them.
+A mock upgrade-responder and `version.yaml` download site that runs inside the test cluster, for testing upgrade paths between Community and Prime releases without published releases.
 
-- `POST <any path>`: the upgrade check. Answers with the releases in `releases.json` that are offered, and logs the request, including the `serverFlavor` the cluster reports.
-- `GET /<id>/version.yaml` (or `version-arm64.yaml`): a `version.yaml` generated from the release, labeled with its flavor and pointing to its ISO. It has a fake `isoChecksum`, because the version syncer skips Versions without one.
-- `GET /<id>/version.yaml?import`: the same without `isoChecksum`, for importing a Version to upgrade with. The upgrade then downloads the ISO without verifying it.
+- `POST <any path>`: the upgrade check. Answers with the releases in `releases.json`, and logs the request, including the `serverFlavor` the cluster reports.
+- `GET /<name>/version.yaml` (or `version-arm64.yaml`): a `version.yaml` generated from the release, labeled with its flavor. It points to a fake ISO with a fake checksum: enough for the version syncer, which skips Versions without them, but not for an upgrade.
+
+Versions to upgrade with are imported from `versions/`, as a user would import a `version.yaml`. They point to ISOs you host on any HTTP server the cluster can reach.
 
 ## Files
 
 - `server.py`: the server (Python standard library only).
-- `releases.json`: the releases. Each entry has:
-  - the responder fields: `name`, `releaseDate`, `minUpgradableVersion`, `tags`;
-  - `flavor`: the `harvesterhci.io/serverFlavor` label; omit it for an unlabeled Version;
-  - `isoURL`: where the cluster downloads the ISO. If omitted, a fake URL is used, which is enough for the version syncer but not for an upgrade;
-  - `id`: URL path and Version name, defaults to `name`, so two flavors of the same version can coexist;
-  - `offer`: `false` keeps the release out of the upgrade check, so it can only be imported.
+- `releases.json`: the releases. Each entry has the responder fields (`name`, `releaseDate`, `minUpgradableVersion`, `tags`) and `flavor`, the `harvesterhci.io/serverFlavor` label; omit it for an unlabeled Version.
+- `versions/`: Versions to import.
+  - `prime-v1.99.0.yaml`: Prime v1.99.0, to switch a Community cluster. Set `isoURL` to the Prime ISO.
+  - `community-v1.99.0.yaml`: Community v1.99.0, which a Prime cluster must not upgrade to. The upgrade webhook rejects it before the ISO is downloaded, so its `isoURL` doesn't matter.
 - `upgrade-mock.yaml`: namespace, the Deployment, and a NodePort Service on port 30880. The Deployment runs `server.py` and `releases.json` from the `upgrade-mock` ConfigMap, created from those two files.
 
-The default `releases.json` matches the PR test plan:
+The default `releases.json` offers Prime `v1.99.0` (tagged `prime`) and Community `v1.99.1` (tagged `community`).
 
-| id | Flavor | Offered | ISO |
-|----|--------|---------|-----|
-| `v1.99.0` | prime | yes, tagged `prime` | Prime v1.99.0 |
-| `v1.99.1` | community | yes, tagged `community` | none needed (syncer tests only) |
-| `v1.99.0-community` | community | no, import only | Community v1.99.0 |
+The imported Versions have no `isoChecksum`, so the upgrade downloads the ISO without verifying it. Add `isoChecksum` (`sha512sum <iso>`) to verify it.
 
 ## Deploy
-
-Host the ISOs on any HTTP server the cluster can reach, and fill in `isoURL` in `releases.json`. Then:
 
 ```sh
 kubectl apply -f upgrade-mock.yaml
@@ -49,10 +42,10 @@ The version syncer does nothing while `upgrade-checker-enabled` is `false`.
 
 ## Use
 
-Import a release as a user would, from any machine that reaches a node:
+Import a Version:
 
 ```sh
-curl -s 'http://<node IP>:30880/v1.99.0/version.yaml?import' | kubectl create -f -
+kubectl create -f versions/prime-v1.99.0.yaml
 ```
 
 Trigger a version sync by restarting Harvester, then check the request and the Versions:

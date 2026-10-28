@@ -5,8 +5,7 @@
       "releaseDate": "2026-10-01",
       "minUpgradableVersion": "v1.9.1",
       "tags": ["v1.99.0", "prime"],
-      "flavor": "prime",
-      "isoURL": "http://<ISO host>/prime/harvester-v1.99.0-amd64.iso"
+      "flavor": "prime"
     },
     {
       "name": "v1.99.1",
@@ -14,14 +13,6 @@
       "minUpgradableVersion": "v1.9.0",
       "tags": ["v1.99.1", "community"],
       "flavor": "community"
-    },
-    {
-      "id": "v1.99.0-community",
-      "name": "v1.99.0",
-      "releaseDate": "2026-10-01",
-      "flavor": "community",
-      "isoURL": "http://<ISO host>/community/harvester-v1.99.0-amd64.iso",
-      "offer": false
     }
   ]
 }

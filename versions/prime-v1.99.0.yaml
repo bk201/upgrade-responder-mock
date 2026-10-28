@@ -1,0 +1,13 @@
+# Prime v1.99.0, imported as a user would to switch a Community cluster.
+# Set isoURL to where the Prime ISO is hosted. Without isoChecksum, the
+# upgrade downloads the ISO without verifying it.
+apiVersion: harvesterhci.io/v1beta1
+kind: Version
+metadata:
+  name: v1.99.0
+  namespace: harvester-system
+  labels:
+    harvesterhci.io/serverFlavor: prime
+spec:
+  isoURL: http://<ISO host>/prime/harvester-v1.99.0-amd64.iso
+  releaseDate: "2026-10-01"

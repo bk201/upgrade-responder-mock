@@ -42,7 +42,10 @@ kubectl patch settings.harvesterhci.io upgrade-checker-url --type merge \
   -p '{"value":"http://upgrade-mock.upgrade-mock.svc.cluster.local:8000/v1/checkupgrade"}'
 kubectl patch settings.harvesterhci.io release-download-url --type merge \
   -p '{"value":"http://upgrade-mock.upgrade-mock.svc.cluster.local:8000"}'
+kubectl patch settings.harvesterhci.io upgrade-checker-enabled --type merge -p '{"value":"true"}'
 ```
+
+The version syncer does nothing while `upgrade-checker-enabled` is `false`.
 
 ## Use
 
@@ -73,7 +76,8 @@ kubectl -n upgrade-mock rollout restart deploy/upgrade-mock   # only after chang
 ```sh
 kubectl patch settings.harvesterhci.io upgrade-checker-url --type merge -p '{"value":""}'
 kubectl patch settings.harvesterhci.io release-download-url --type merge -p '{"value":""}'
+kubectl patch settings.harvesterhci.io upgrade-checker-enabled --type merge -p '{"value":""}'
 kubectl delete namespace upgrade-mock
 ```
 
-An empty value makes both settings fall back to their defaults.
+An empty value makes these settings fall back to their defaults.
